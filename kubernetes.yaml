@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ddns-update-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 0.01Gi
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: ddns-update
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: ddns-update
+              image: fabiuse/ddns_update:1.0.0
+              imagePullPolicy: IfNotPresent
+              volumeMounts:
+                - mountPath: "/ddns_data"
+                  name: ddns-update
+              command: ["/code/ddns_bash_script.sh"]
+              env:
+                - name: KEYAUTH
+                  value: "KEY_HIER_EINSETZEN"
+                - name: HOSTNAME
+                  value: "HOSTNAME_HIER_EINSETZEN"
+          restartPolicy: OnFailure
+          volumes:
+            - name: ddns-update
+              persistentVolumeClaim:
+                claimName: ddns-update-pvc
