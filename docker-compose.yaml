@@ -1,0 +1,9 @@
+version: "3.3"
+services:
+  ddns_update:
+    image: ddns_updater:1.0.0
+    environment:
+      - KEYAUTH="KEY hier einsetzen"
+      - HOSTNAME="Domain hier einsetzen"
+    entrypoint: |
+      /home/ddns_bash_script.sh
